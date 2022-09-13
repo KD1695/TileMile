@@ -26,6 +26,7 @@ public class PlayerMovement : MonoBehaviour
                 newPosition = new Vector2(GameState.Instance.GetPlayerPosition().x, GameState.Instance.GetPlayerPosition().y - 1),
                 direction = MoveDirection.Up
             });
+            MoveCharacter(_movement, false);
         }
         if (Input.GetKeyDown(KeyCode.S))
         {
@@ -35,6 +36,7 @@ public class PlayerMovement : MonoBehaviour
                 newPosition = new Vector2(GameState.Instance.GetPlayerPosition().x, GameState.Instance.GetPlayerPosition().y + 1),
                 direction = MoveDirection.Down
             });
+            MoveCharacter(_movement, false);
         }
         if (Input.GetKeyDown(KeyCode.D))
         {
@@ -44,6 +46,7 @@ public class PlayerMovement : MonoBehaviour
                 newPosition = new Vector2(GameState.Instance.GetPlayerPosition().x + 1, GameState.Instance.GetPlayerPosition().y),
                 direction = MoveDirection.Right
             });
+            MoveCharacter(_movement, false);
         }
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -55,15 +58,28 @@ public class PlayerMovement : MonoBehaviour
                     newPosition = new Vector2(GameState.Instance.GetPlayerPosition().x + 2, GameState.Instance.GetPlayerPosition().y),
                     direction = MoveDirection.Right
                 });
+                MoveCharacter(_movement, false);
             }
         }
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
             //undo
+            _movement = GameState.Instance.PopActionStack();
+            _movement.newPosition = _movement.previousPosition;
+            _movement.previousPosition = GameState.Instance.GetPlayerPosition();
+            _movement.direction = MoveDirection.None;
+            MoveCharacter(_movement, true);
         }
+        
+    }
+
+    void MoveCharacter(Movement _movement, bool isUndo)
+    {
         int newX = (int)(transform.position.x + (_movement.newPosition.x - _movement.previousPosition.x) * 10);
         int newY = (int)(transform.position.y + (_movement.previousPosition.y - _movement.newPosition.y) * 10);
         GameState.Instance.SetPlayerPosition(_movement.newPosition);
+        if(!isUndo)
+            GameState.Instance.PushActionToStack(_movement);
         this.transform.position = Vector3.MoveTowards(transform.position, new Vector3(newX, newY, 66), 100);
     }
 }

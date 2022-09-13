@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
+using TMPro;
 
 public struct Movement
 {
@@ -24,9 +26,13 @@ public class GameState : MonoBehaviour
     [SerializeField] public int pathLength = 10;
     [SerializeField] public int pathWidth = 3;
 
+    [SerializeField] TextMeshProUGUI winText;
+
     public List<List<TileType>> tiles = new List<List<TileType>>();
     private Vector2 playerPosition = new Vector2(-1, 1);
     public bool jumpEnabled = false;
+
+    List<Movement> actionStack = new List<Movement>();
 
     void Awake()
     {
@@ -36,6 +42,20 @@ public class GameState : MonoBehaviour
     public void SetPlayerPosition(Vector2 _position)
     {
         playerPosition = _position;
+    }
+
+    public void PushActionToStack(Movement movement)
+    {
+        actionStack.Add(movement);
+    }
+
+    public Movement PopActionStack()
+    {
+        if (actionStack.Count == 0)
+            return new Movement();
+        Movement movement = actionStack.Last();
+        actionStack.Remove(movement);
+        return movement;
     }
 
     public Vector2 GetPlayerPosition()
@@ -115,6 +135,11 @@ public class GameState : MonoBehaviour
         else if(movement.newPosition.x >= pathLength)
         {
             //win
+            winText.enabled = true;
+        }
+        else if(movement.newPosition.y >= pathWidth || movement.newPosition.y < 0)
+        {
+            return new Movement { previousPosition = movement.previousPosition, direction = MoveDirection.None, newPosition = new Vector2(movement.previousPosition.x, (movement.newPosition.y >= pathWidth) ? pathWidth-1 : 0) };
         }
         return new Movement { previousPosition = movement.previousPosition, direction = MoveDirection.None, newPosition = movement.previousPosition };
     }
