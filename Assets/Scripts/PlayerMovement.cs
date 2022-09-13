@@ -13,40 +13,57 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        Movement _movement = new Movement
+        {
+            previousPosition = GameState.Instance.GetPlayerPosition(),
+            newPosition = GameState.Instance.GetPlayerPosition()
+        };
         if(Input.GetKeyDown(KeyCode.W))
         {
-            GameState.Instance.CheckMovementResult(new Movement
+            _movement = GameState.Instance.CheckMovementResult(new Movement
             {
                 previousPosition = GameState.Instance.GetPlayerPosition(),
-                newPosition = new Vector2(GameState.Instance.GetPlayerPosition().x, GameState.Instance.GetPlayerPosition().y+1),
+                newPosition = new Vector2(GameState.Instance.GetPlayerPosition().x, GameState.Instance.GetPlayerPosition().y - 1),
                 direction = MoveDirection.Up
             });
         }
         if (Input.GetKeyDown(KeyCode.S))
         {
-            GameState.Instance.CheckMovementResult(new Movement
+            _movement = GameState.Instance.CheckMovementResult(new Movement
             {
                 previousPosition = GameState.Instance.GetPlayerPosition(),
                 newPosition = new Vector2(GameState.Instance.GetPlayerPosition().x, GameState.Instance.GetPlayerPosition().y + 1),
-                direction = MoveDirection.Up
+                direction = MoveDirection.Down
             });
         }
         if (Input.GetKeyDown(KeyCode.D))
         {
-            GameState.Instance.CheckMovementResult(new Movement
+            _movement = GameState.Instance.CheckMovementResult(new Movement
             {
                 previousPosition = GameState.Instance.GetPlayerPosition(),
-                newPosition = new Vector2(GameState.Instance.GetPlayerPosition().x, GameState.Instance.GetPlayerPosition().y + 1),
-                direction = MoveDirection.Up
+                newPosition = new Vector2(GameState.Instance.GetPlayerPosition().x + 1, GameState.Instance.GetPlayerPosition().y),
+                direction = MoveDirection.Right
             });
         }
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            //jump
+            if (GameState.Instance.jumpEnabled)
+            {
+                _movement = GameState.Instance.CheckMovementResult(new Movement
+                {
+                    previousPosition = GameState.Instance.GetPlayerPosition(),
+                    newPosition = new Vector2(GameState.Instance.GetPlayerPosition().x + 2, GameState.Instance.GetPlayerPosition().y),
+                    direction = MoveDirection.Right
+                });
+            }
         }
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
             //undo
         }
+        int newX = (int)(transform.position.x + (_movement.newPosition.x - _movement.previousPosition.x) * 10);
+        int newY = (int)(transform.position.y + (_movement.previousPosition.y - _movement.newPosition.y) * 10);
+        GameState.Instance.SetPlayerPosition(_movement.newPosition);
+        this.transform.position = Vector3.MoveTowards(transform.position, new Vector3(newX, newY, 66), 100);
     }
 }
