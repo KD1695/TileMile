@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public struct Movement
 {
@@ -37,6 +38,14 @@ public class GameState : MonoBehaviour
     void Awake()
     {
         Instance = this;
+    }
+
+    private void Update() 
+    {
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadScene(0);
+        }
     }
 
     public void SetPlayerPosition(Vector2 _position)
